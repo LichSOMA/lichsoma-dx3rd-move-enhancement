@@ -101,13 +101,20 @@ class MoveHistoryWindow extends foundry.applications.api.HandlebarsApplicationMi
         // moveOrder로 정렬
         const sortedMoves = [...allMoves].sort((a, b) => a.moveOrder - b.moveOrder);
         
-        // 연속된 같은 토큰의 이동을 그룹화
+        // 연속된 같은 토큰의 이동을 그룹화 (10초 간격 체크)
         const groups = [];
         let currentGroup = null;
         
         for (const move of sortedMoves) {
-            // 현재 그룹이 없거나, 다른 토큰이면 새 그룹 시작
-            if (!currentGroup || currentGroup.tokenId !== move.tokenId) {
+            // 타임스탬프 차이 계산 (밀리초)
+            const timeDiff = currentGroup ? (move.timestamp - currentGroup.lastTimestamp) : 0;
+            
+            // 현재 그룹이 없거나, 다른 토큰이거나, 5초 이상 차이나면 새 그룹 시작
+            const shouldStartNewGroup = !currentGroup || 
+                                       currentGroup.tokenId !== move.tokenId ||
+                                       timeDiff > 5000;  // 5초 = 5000ms
+            
+            if (shouldStartNewGroup) {
                 if (currentGroup) {
                     groups.push(currentGroup);
                 }
@@ -120,13 +127,15 @@ class MoveHistoryWindow extends foundry.applications.api.HandlebarsApplicationMi
                     lastMoveOrder: move.moveOrder,
                     from: move.from,  // 첫 출발점
                     to: move.to,      // 현재 도착점 (계속 업데이트됨)
-                    moveCount: 1
+                    moveCount: 1,
+                    lastTimestamp: move.timestamp  // 타임스탬프 저장
                 };
             } else {
-                // 같은 토큰이면 그룹에 추가
+                // 같은 토큰이고 10초 이내면 그룹에 추가
                 currentGroup.lastMoveOrder = move.moveOrder;
                 currentGroup.to = move.to;  // 도착점 업데이트
                 currentGroup.moveCount++;
+                currentGroup.lastTimestamp = move.timestamp;  // 타임스탬프 업데이트
             }
         }
         
@@ -323,18 +332,28 @@ async function undoLastMoveGroup() {
         // moveOrder로 정렬하여 마지막 그룹 찾기
         const sortedMoves = [...history].sort((a, b) => a.moveOrder - b.moveOrder);
         
-        // 마지막 이동의 토큰으로 마지막 그룹 찾기
+        // 마지막 이동의 토큰으로 마지막 그룹 찾기 (5초 간격 체크)
         const lastMove = sortedMoves[sortedMoves.length - 1];
         const lastGroupMoves = [];
         
-        // 뒤에서부터 같은 토큰의 연속된 이동 찾기
+        // 뒤에서부터 같은 토큰의 연속된 이동 찾기 (5초 이내만)
         for (let i = sortedMoves.length - 1; i >= 0; i--) {
             const move = sortedMoves[i];
-            if (move.tokenId === lastMove.tokenId) {
-                lastGroupMoves.unshift(move);
-            } else {
-                break;  // 다른 토큰이 나오면 중단
+            
+            // 다른 토큰이 나오면 중단
+            if (move.tokenId !== lastMove.tokenId) {
+                break;
             }
+            
+            // 타임스탬프 체크 (5초 이상 차이나면 중단)
+            if (lastGroupMoves.length > 0) {
+                const timeDiff = lastGroupMoves[0].timestamp - move.timestamp;  // 최신 - 이전
+                if (timeDiff > 5000) {  // 5초 = 5000ms
+                    break;
+                }
+            }
+            
+            lastGroupMoves.unshift(move);
         }
         
         console.log('취소할 그룹:', lastGroupMoves);
