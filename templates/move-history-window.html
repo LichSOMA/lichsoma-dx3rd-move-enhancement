@@ -1,0 +1,37 @@
+<div class="move-history-window">
+    <div class="move-history-content">
+        {{#if hasHistory}}
+        <div class="move-history-list">
+            <div class="move-history-item header">
+                <div class="move-token">토큰</div>
+                <div class="move-number">#</div>
+                <div class="move-from">출발</div>
+                <div class="move-to">도착</div>
+            </div>
+            {{#each moveGroups}}
+            <div class="move-history-item">
+                <div class="move-token">{{tokenName}}</div>
+                <div class="move-number">#{{firstMoveOrder}}{{#if (gt moveCount 1)}}~#{{lastMoveOrder}}{{/if}}</div>
+                <div class="move-from">({{from.x}}, {{from.y}})</div>
+                <div class="move-to">({{to.x}}, {{to.y}})</div>
+            </div>
+            {{/each}}
+        </div>
+        {{else}}
+        <div class="no-history">
+            <p>이동 기록이 없습니다</p>
+        </div>
+        {{/if}}
+    </div>
+    
+    <div class="move-history-footer">
+        <button class="undo-move" data-action="undo-move" {{#unless canUndoMove}}disabled{{/unless}}>
+            <i class="fas fa-undo"></i> 이동 취소
+        </button>
+        {{#if canClearHistory}}
+        <button class="clear-history" data-action="clear-history" {{#unless hasHistory}}disabled{{/unless}}>
+            <i class="fas fa-trash"></i> 기록 삭제
+        </button>
+        {{/if}}
+    </div>
+</div>

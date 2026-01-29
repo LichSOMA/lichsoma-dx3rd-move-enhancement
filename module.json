@@ -1,0 +1,41 @@
+{
+  "id": "lichsoma-dx3rd-move-enhancement",
+  "title": "LichSOMA's DX3rd Move Enhancement",
+  "description": "전투 중 토큰 이동 기록을 표시하고 직전 이동을 취소할 수 있는 모듈입니다.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13",
+    "maximum": "13"
+  },
+  "authors": [
+    {
+      "name": "LichSOMA"
+    }
+  ],
+  "esmodules": [
+    "scripts/lichsoma-dx3rd-move-enhancement.js"
+  ],
+  "styles": [
+    "styles/lichsoma-dx3rd-move-enhancement.css"
+  ],
+  "languages": [
+    {
+      "lang": "ko",
+      "name": "Korean",
+      "path": "lang/ko.json"
+    }
+  ],
+  "packs": [],
+  "relationships": {
+    "requires": [],
+    "recommends": []
+  },
+
+  "socket": true,
+  "url": "https://github.com/LichSOMA/lichsoma-dx3rd-move-enhancement",
+  "manifest": "https://github.com/LichSOMA/lichsoma-dx3rd-move-enhancement/releases/latest/download/module.json",
+  "download": "https://github.com/LichSOMA/lichsoma-dx3rd-move-enhancement/releases/download/1.0.0/lichsoma-dx3rd-move-enhancement.zip",
+  "license": "https://github.com/LichSOMA/lichsoma-dx3rd-move-enhancement/blob/main/LICENSE.md"
+}
+
